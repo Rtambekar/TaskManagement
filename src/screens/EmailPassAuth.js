@@ -1,15 +1,17 @@
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
+import HomeScreen from './HomeScreen';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import app from '../constant/firebaseConfig'; // Import Firebase config
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+
 
 export default function EmailPassauth() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLogin, setIsLogin] = useState(false); // Toggle between Login & Register
-
-    const auth = getAuth(app); // Initialize Firebase Auth
-
+    const auth = getAuth(app);
+    const navigation = useNavigation(); // Initialize navigation
     // Function to create a new user
     const handleRegister = async () => {
         if (!email || !password) {
@@ -36,9 +38,10 @@ export default function EmailPassauth() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             Alert.alert("Success", "Logged in successfully!");
-            setEmail(""); 
+            setEmail("");
             setPassword("");
-            console.log("successfull login");
+            console.log("successful login");
+            navigation.navigate('Home'); // Navigate to Home screen after successful login
         } catch (error) {
             Alert.alert("Login Failed", error.message);
         }

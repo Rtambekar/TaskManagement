@@ -8,4 +8,4 @@ import {name as appName} from './app.json';
 import EmailPassauth from './src/screens/EmailPassAuth';
 
 
-AppRegistry.registerComponent(appName, () =>EmailPassauth);
+AppRegistry.registerComponent(appName, () =>App);
