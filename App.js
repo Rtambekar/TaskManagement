@@ -1,19 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import HomeScreen from './src/screens/HomeScreen';
-import EmailPassauth from './src/screens/EmailPassAuth';
-
+import { createStackNavigator } from '@react-navigation/stack';
+import EmailPassAuth from './src/screens/EmailPassAuth';
+import TaskScreen from './src/screens/TaskScreen';
 
 const Stack = createStackNavigator();
 
 export default function App() {
     return (
-        <NavigationContainer >
-            <Stack.Navigator initialRouteName='Login'>
-                <Stack.Screen name="Login" component={EmailPassauth} />
-                <Stack.Screen name="Home" component={HomeScreen} />
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Login" component={EmailPassAuth} />
+                <Stack.Screen name="TaskScreen" component={TaskScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

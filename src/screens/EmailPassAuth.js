@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
-import HomeScreen from './HomeScreen';
+import TaskScreen from './TaskScreen';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import app from '../constant/firebaseConfig'; // Import Firebase config
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
@@ -41,7 +41,7 @@ export default function EmailPassauth() {
             setEmail("");
             setPassword("");
             console.log("successful login");
-            navigation.navigate('Home'); // Navigate to Home screen after successful login
+            navigation.replace('TaskScreen'); // Navigate to Home screen after successful login
         } catch (error) {
             Alert.alert("Login Failed", error.message);
         }
