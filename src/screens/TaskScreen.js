@@ -22,17 +22,17 @@ export default function TaskScreen() {
         setTasks(fetchedTasks);
     };
 
-    const handleAddTask = async () => {
-        if (!title || !description) {
-            Alert.alert("Error", "Please fill in all fields!");
-            return;
-        }
-        const newTask = { title, description, dueDate: new Date().toISOString(), priority: "Medium", isCompleted: false };
-        await createTask(newTask);
-        setTitle('');
-        setDescription('');
-        fetchTasks();
-    };
+    // const handleAddTask = async () => {
+    //     if (!title || !description) {
+    //         Alert.alert("Error", "Please fill in all fields!");
+    //         return;
+    //     }
+    //     const newTask = { title, description, dueDate: new Date().toISOString(), priority: "Medium", isCompleted: false };
+    //     await createTask(newTask);
+    //     setTitle('');
+    //     setDescription('');
+    //     fetchTasks();
+    // };
 
     const handleDeleteTask = async (taskId) => {
         await deleteTask(taskId);
@@ -44,101 +44,81 @@ export default function TaskScreen() {
         fetchTasks();
     };
 
+    const renderSectionHeader = (title) => (
+        <Text style={styles.sectionHeader}>{title}</Text>
+    );
+
     return (
         <View style={styles.container}>
             {/* Header */}
-
             <View style={styles.header}>
-                <View style={styles.headerrow}>
-                    <TouchableOpacity style={styles.menuButton}>
-                        <Ionicons name="menu" size={28} color="white" />
+                <View style={styles.headerTop}>
+                    <TouchableOpacity>
+                        <Ionicons name="grid" size={24} color="#fff" />
                     </TouchableOpacity>
                     <View style={styles.searchContainer}>
-
                         <TextInput
                             style={styles.searchInput}
-                            placeholder="  Search..."
-                            placeholderTextColor="#ffffff"
+                            placeholder="Search tasks..."
+                            placeholderTextColor="rgba(255,255,255,0.7)"
                             value={searchText}
-
-                            onChangeText={(text) => setSearchText(text)}
+                            onChangeText={setSearchText}
                         />
+                        <Ionicons name="search" size={20} color="#fff" style={styles.searchIcon} />
                     </View>
-                    <Ionicons name="search" size={28} color="white" style={styles.searchIcon} />
+                    <TouchableOpacity>
+                        <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-
-                <View style={styles.headerTextContainer}>
-                    <Text style={styles.day}>{moment().format("dddd, MMM D")}</Text>
-                    <Text style={styles.headerTitle}>My Tasks</Text>
+                <View style={styles.headerBottom}>
+                    <Text style={styles.dateText}>Today, {moment().format("D MMM")}</Text>
+                    <Text style={styles.headerTitle}>My tasks</Text>
                 </View>
-            </View>
-            {/* Input Section */}
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Task Title"
-                    placeholderTextColor="#888"
-                    value={title}
-                    onChangeText={setTitle}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Task Description"
-                    placeholderTextColor="#888"
-                    value={description}
-                    multiline
-                    numberOfLines={3}
-                    onChangeText={setDescription}
-                />
             </View>
 
             {/* Task List */}
-            <FlatList
-                style={styles.taskList}
-                data={tasks}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View style={styles.taskItem}>
-                        <View style={styles.taskHeader}>
-                            <Text style={styles.taskTitle}>{item.title}</Text>
-                            <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                <Icon name="delete-outline" size={20} color="#ff4444" />
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={styles.taskDescription}>{item.description}</Text>
-                        <View style={styles.taskFooter}>
-                            <Text style={[
-                                styles.taskStatus,
-                                { color: item.isCompleted ? '#4CAF50' : '#FF9800' }
-                            ]}>
-                                {item.isCompleted ? "Completed" : "In Progress"}
-                            </Text>
+            <View style={styles.content}>
+                <FlatList
+                    style={styles.taskList}
+                    data={tasks}
+                    ListHeaderComponent={() => renderSectionHeader("Today")}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <View style={styles.taskItem}>
                             <TouchableOpacity
-                                style={styles.statusButton}
+                                style={styles.taskCheckbox}
                                 onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}>
-                                <Icon
-                                    name={item.isCompleted ? "check-circle" : "radio-button-unchecked"}
-                                    size={24}
-                                    color={item.isCompleted ? '#4CAF50' : '#FF9800'}
-                                />
+                                <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
+                                    {item.isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
+                                </View>
+                            </TouchableOpacity>
+                            <View style={styles.taskContent}>
+                                <Text style={styles.taskTitle}>{item.title}</Text>
+                                <View style={styles.tagContainer}>
+                                    <Text style={styles.tagContainer}>{moment(item.dueDate).format("D MMM")}</Text>
+                                    <Text style={styles.tag}>{item.tag}[0,1,2]</Text>
+                                   
+                                </View>
+                            </View>
+
+                            <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
+                                <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
                             </TouchableOpacity>
                         </View>
-                    </View>
-                )}
-            />
+                    )}
+                />
+            </View>
 
             {/* Bottom Navigation */}
             <View style={styles.bottomNav}>
                 <TouchableOpacity style={styles.bottomNavButton}>
-                    <Icon name="format-list-bulleted" size={24} color="#ffffff" />
+                    <Ionicons name="list" size={24} color="#6C5CE7" />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.bottomNavButton, styles.addButton]} onPress={handleAddTask}>
-                    <Icon name="add" size={28} color="#ffffff" />
+                <TouchableOpacity style={styles.addButton}  onPress={() => navigation.navigate('TaskDetails')}>
+                    <Ionicons name="add" size={32} color="#fff" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavButton}
-                    onPress={() => navigation.navigate('DateTimeScreen')}>
-                    <Icon name="event" size={24} color="#ffffff" />
+                <TouchableOpacity style={styles.bottomNavButton} onPress={() => navigation.navigate('DateTimeScreen')}>
+                    <Ionicons name="calendar" size={24} color="#6C5CE7" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -148,124 +128,155 @@ export default function TaskScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
+        backgroundColor: '#F8F9FD',
     },
     header: {
-    
+        backgroundColor: '#6C5CE7',
+        paddingTop: 48,
+        paddingBottom: 24,
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
     },
-    headerrow:{
+    headerTop: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#2a2a2a',
-        
+        paddingHorizontal: 20,
+        marginBottom: 20,
     },
-    headerTextContainer: {
-        flexDirection: 'coloumn',
-        marginLeft: 20,
-        color: "#ffffff"
-    },
-    headerTitle: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        color: '#ffffff',
-    },
-    day: {
-        fontSize: 14,
-        color: '#888',
-        marginTop: 4,
-    },
-    searchInput: {
-        borderRadius: 20,
-        borderWidth: 1,
-        borderRightColor: "#ffffff",
+    headerBottom: {
+        paddingHorizontal: 20,
     },
     searchContainer: {
-        width: 250,
-
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 20,
+        marginHorizontal: 15,
+        paddingHorizontal: 15,
     },
-    inputContainer: {
-        padding: 16,
+    searchInput: {
+        flex: 1,
+        color: '#fff',
+        fontSize: 16,
+        paddingVertical: 8,
     },
-    input: {
-        backgroundColor: '#1e1e1e',
-        borderRadius: 8,
-        padding: 12,
-        color: '#ffffff',
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: '#333',
+    searchIcon: {
+        marginLeft: 10,
+    },
+    dateText: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 16,
+    },
+    headerTitle: {
+        color: '#fff',
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginTop: 5,
+    },
+    content: {
+        flex: 1,
+        backgroundColor: '#F8F9FD',
+    },
+    sectionHeader: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#2D3436',
+        marginVertical: 15,
+        paddingHorizontal: 20,
     },
     taskList: {
         flex: 1,
-        padding: 16,
     },
     taskItem: {
-        backgroundColor: '#1e1e1e',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        marginHorizontal: 20,
+        marginBottom: 12,
+        padding: 15,
         borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: '#333',
-    },
-    taskHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    taskTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#ffffff',
-        flex: 1,
-    },
-    taskDescription: {
-        fontSize: 14,
-        color: '#888',
-        marginBottom: 12,
-    },
-    taskFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    taskStatus: {
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    statusButton: {
-        padding: 4,
-    },
-    bottomNav: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        backgroundColor: '#1e1e1e',
-        paddingVertical: 12,
-        borderTopWidth: 1,
-        borderTopColor: '#2a2a2a',
-    },
-    bottomNavButton: {
-        padding: 12,
-    },
-    addButton: {
-        backgroundColor: '#2196F3',
-        borderRadius: 30,
-        width: 56,
-        height: 56,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 4,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+    taskCheckbox: {
+        marginRight: 15,
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#6C5CE7',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkboxChecked: {
+        backgroundColor: '#6C5CE7',
+    },
+    taskContent: {
+        flex: 1,
+    },
+    taskTitle: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#2D3436',
+        marginBottom: 8,
+
+    },
+    tagContainer: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    tag: {
+        fontSize: 12,
+        color: '#6C5CE7',
+        backgroundColor: '#F3F1FE',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    bottomNav: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        paddingVertical: 15,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: -3,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    bottomNavButton: {
+        padding: 10,
+    },
+    addButton: {
+        backgroundColor: '#6C5CE7',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#6C5CE7',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 6,
     },
 });
