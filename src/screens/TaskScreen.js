@@ -19,21 +19,9 @@ export default function TaskScreen() {
 
     const fetchTasks = async () => {
         const fetchedTasks = await getTasks();
-        setTasks(fetchedTasks);
+        setTasks(fetchedTasks);  // Update the state to reflect fetched tasks
     };
-
-    // const handleAddTask = async () => {
-    //     if (!title || !description) {
-    //         Alert.alert("Error", "Please fill in all fields!");
-    //         return;
-    //     }
-    //     const newTask = { title, description, dueDate: new Date().toISOString(), priority: "Medium", isCompleted: false };
-    //     await createTask(newTask);
-    //     setTitle('');
-    //     setDescription('');
-    //     fetchTasks();
-    // };
-
+//..................................................................................................// handles fetching  data
     const handleDeleteTask = async (taskId) => {
         await deleteTask(taskId);
         fetchTasks();
@@ -84,28 +72,54 @@ export default function TaskScreen() {
                     ListHeaderComponent={() => renderSectionHeader("Today")}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <View style={styles.taskItem}>
+                        <View >
                             <TouchableOpacity
-                                style={styles.taskCheckbox}
-                                onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}>
-                                <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
-                                    {item.isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
-                                </View>
-                            </TouchableOpacity>
-                            <View style={styles.taskContent}>
-                                <Text style={styles.taskTitle}>{item.title}</Text>
-                                <View style={styles.tagContainer}>
-                                    <Text style={styles.tagContainer}>{moment(item.dueDate).format("D MMM")}</Text>
-                                    <Text style={styles.tag}>{item.tag}[0,1,2]</Text>
-                                   
-                                </View>
-                            </View>
+                                onPress={() => navigation.navigate('TaskDetails', { task: item })}
+                                style={styles.taskItem}
+                            >
+                                <TouchableOpacity
+                                    style={styles.taskCheckbox}
+                                    onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}>
+                                    <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
+                                        {item.isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
+                                    </View>
+                                </TouchableOpacity>
+                                <View style={styles.taskContent}>
+                                    <Text style={styles.taskTitle}>{item.title}</Text>
+                                    <View style={styles.tagContainer}>
+                                        <Text style={styles.tagContainer}>{moment(item.dueDate).format("D MMM")}</Text>
+                                        {/* tag items props condition */}
+                                        {item.tags && item.tags.length > 0 ? ( // Check if item.tags exists in array and is not empty
+                                            <View style={styles.tagsContainer}>
+                                                {item.tags.map((tag, index) => (
+                                                    <View key={index} style={styles.tag}>
+                                                        <Text style={styles.tagText}>{tag}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        ) : null}
+                                    </View>
 
-                            <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
+                                    {/* handles priority..................... */}
+                                    <Text style={{
+                                        color: item.priority.toLowerCase() === "high" ? "red" :
+                                            item.priority.toLowerCase() === "medium" ? "orange" :
+                                                "green",
+                                        fontWeight: "bold",
+                                        fontSize: 14
+                                    }}>
+                                        {item.priority}
+                                    </Text>
+                                </View>
+
+                                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
+                                    <Ionicons name="trash-outline" size={30} color="#FF6B6B" />
+                                </TouchableOpacity>
                             </TouchableOpacity>
                         </View>
+
                     )}
+
                 />
             </View>
 
@@ -114,7 +128,7 @@ export default function TaskScreen() {
                 <TouchableOpacity style={styles.bottomNavButton}>
                     <Ionicons name="list" size={24} color="#6C5CE7" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.addButton}  onPress={() => navigation.navigate('TaskDetails')}>
+                <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TaskDetails')}>
                     <Ionicons name="add" size={32} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.bottomNavButton} onPress={() => navigation.navigate('DateTimeScreen')}>
