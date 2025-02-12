@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef} from 'react';
 import { createTask, getTasks, deleteTask, updateTask } from '../services/taskService';
 import Menuicon from '../assets/menuicon';
 import Searchicon from '../assets/svg/Searchicon';
@@ -10,9 +10,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import Calendericon from '../assets/svg/Calendericon';
-import Righticon from '../assets/svg/Righticon';
 import Checkbox from '../assets/svg/Checkbox';
-
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Swipeable } from 'react-native-gesture-handler';
+import Deleteicon from '../assets/svg/Deleteicon';
 
 export default function TaskScreen() {
     const [title, setTitle] = useState('');
@@ -20,7 +22,9 @@ export default function TaskScreen() {
     const [tasks, setTasks] = useState([]);
     const navigation = useNavigation();
     const [searchText, setSearchText] = useState("");
-    const [olddata , setolddata] = useState("");
+    const [olddata, setolddata] = useState("");
+    const swipeableRefs = useRef([]);  // Array of Swipeable refs to track the open cards
+    const [openIndex, setOpenIndex] = useState(null);  // T
     useEffect(() => {
         fetchTasks();
     }, []);
@@ -28,17 +32,18 @@ export default function TaskScreen() {
     const fetchTasks = async () => {
         const fetchedTasks = await getTasks();
         setTasks(fetchedTasks);
-        setolddata(fetchedTasks) ; // Update the state to reflect fetched tasks
+        setolddata(fetchedTasks); // Update the state to reflect fetched tasks
     };
-//..................................................................................................// handles fetching  data
-const onSearch = (text) => {
-    let tempList = olddata.filter(item => 
-        item.title.toLowerCase().includes(text.toLowerCase())
-    );
-    setTasks(tempList);
-};
+    //..................................................................................................// handles fetching  data
+    const onSearch = (text) => {
+        let tempList = olddata.filter(item =>
+            item.title.toLowerCase().includes(text.toLowerCase())
+        );
+        setTasks(tempList);
+    };
 
-const handleDeleteTask = async (taskId) => {
+
+    const handleDeleteTask = async (taskId) => {
         await deleteTask(taskId);
         fetchTasks();
     };
@@ -50,15 +55,38 @@ const handleDeleteTask = async (taskId) => {
 
     const renderSectionHeader = (title) => (
         <Text style={styles.sectionHeader}>{title}</Text>
+
     );
+
+    // Render delete button when swiping
+    const renderRightActions = (taskId, index) => {
+        return (
+            <View style={styles.swipeActionContainer}>
+                <TouchableOpacity
+                    onPress={() => handleDeleteTask(taskId)}
+                    activeOpacity={0.6}
+                    style={styles.deleteBox}
+                >
+                    <Deleteicon/>
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    const handleSwipeOpen = (index) => {
+        if (openIndex !== null && openIndex !== index) {
+            swipeableRefs.current[openIndex]?.close();  // Close the previous open card
+        }
+        setOpenIndex(index);  // Set the current open card index
+    };
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <TouchableOpacity>                      
-                        <Menuicon/>
+                    <TouchableOpacity>
+                        <Menuicon />
                     </TouchableOpacity>
                     <View style={styles.searchContainer}>
                         <TextInput
@@ -66,16 +94,16 @@ const handleDeleteTask = async (taskId) => {
                             placeholder="Search tasks..."
                             placeholderTextColor="rgba(255,255,255,0.7)"
                             value={searchText}
-                            onChangeText={txt =>{
+                            onChangeText={txt => {
                                 onSearch(txt);
                                 setSearchText(txt);
                             }}
                         />
-                        <Searchicon/>
+                        <Searchicon />
                     </View>
                     <TouchableOpacity>
-                       <LineH   />
-                    
+                        <LineH />
+
                     </TouchableOpacity>
                 </View>
                 <View style={styles.headerBottom}>
@@ -85,74 +113,76 @@ const handleDeleteTask = async (taskId) => {
             </View>
 
             {/* Task List */}
+
+
             <View style={styles.content}>
                 <FlatList
                     style={styles.taskList}
                     data={tasks}
-                    ListHeaderComponent={() => renderSectionHeader("Today")}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <View >
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate('TaskDetails', { task: item })}
-                                style={styles.taskItem}
-                            >
+                    keyExtractor={(item) => item.id.toString()}  // Ensure key is a string
+                    renderItem={({ item, index }) => (
+                        <Swipeable
+                        ref={(ref) => swipeableRefs.current[index] = ref}  // Attach ref to each Swipeable
+                        renderRightActions={() => renderRightActions(item.id, index)}
+                        onSwipeableWillOpen={() => handleSwipeOpen(index)}  // Track when a card is swiped open
+                    >
+                            <View style={styles.taskItem}>
                                 <TouchableOpacity
-                                    style={styles.taskCheckbox}
-                                    onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}>
-                                    <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
-                                        {item.isCompleted && <Checkbox size={10} color="#fff" />}
+                                    onPress={() => navigation.navigate('TaskDetails', { task: item })}
+                                    style={styles.taskItemContent}
+                                >
+                                    <TouchableOpacity
+                                        style={styles.taskCheckbox}
+                                        onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}
+                                    >
+                                        <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
+                                            {item.isCompleted && <Checkbox/>}
+                                        </View>
+                                    </TouchableOpacity>
+
+                                    <View style={styles.taskContent}>
+                                        <Text style={styles.taskTitle}>{item.title}</Text>
+                                        <View style={styles.tagContainer}>
+                                            <Text style={styles.tagDate}>{moment(item.dueDate).format("D MMM")}</Text>
+                                            {item.tags?.length > 0 && (
+                                                <View style={styles.tagsContainer}>
+                                                    {item.tags.map((tag, index) => (
+                                                        <View key={index} style={styles.tag}>
+                                                            <Text style={styles.tagText}>{tag}</Text>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            )}
+                                        </View>
+                                        <Text style={[
+                                            styles.priorityText,
+                                            {
+                                                color:
+                                                    item.priority.toLowerCase() === "high" ? "red" :
+                                                        item.priority.toLowerCase() === "medium" ? "orange" :
+                                                            "green",
+                                            }
+                                        ]}>
+                                            {item.priority}
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
-                                <View style={styles.taskContent}>
-                                    <Text style={styles.taskTitle}>{item.title}</Text>
-                                    <View style={styles.tagContainer}>
-                                        <Text style={styles.tagContainer}>{moment(item.dueDate).format("D MMM")}</Text>
-                                        {/* tag items props condition */}
-                                        {item.tags && item.tags.length > 0 ? ( // Check if item.tags exists in array and is not empty
-                                            <View style={styles.tagsContainer}>
-                                                {item.tags.map((tag, index) => (
-                                                    <View key={index} style={styles.tag}>
-                                                        <Text style={styles.tagText}>{tag}</Text>
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        ) : null}
-                                    </View>
-
-                                    {/* handles priority..................... */}
-                                    <Text style={{
-                                        color: item.priority.toLowerCase() === "high" ? "red" :
-                                            item.priority.toLowerCase() === "medium" ? "orange" :
-                                                "green",
-                                        fontWeight: "bold",
-                                        fontSize: 14
-                                    }}>
-                                        {item.priority}
-                                    </Text>
-                                </View>
-
-                                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                    <Ionicons name="trash-outline" size={30} color="#FF6B6B" />
-                                </TouchableOpacity>
-                            </TouchableOpacity>
-                        </View>
-
+                            </View>
+                        </Swipeable>
                     )}
-
                 />
             </View>
 
             {/* Bottom Navigation */}
             <View style={styles.bottomNav}>
                 <TouchableOpacity style={styles.bottomNavButton}>
-                    <Listicon/>
+                    <Listicon />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TaskDetails')}>
-                   <Addicon/>
+                    <Addicon />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.bottomNavButton} onPress={() => navigation.navigate('DateTimeScreen')}>
-                <Calendericon/>
+                    <Calendericon />
                 </TouchableOpacity>
             </View>
         </View>
@@ -299,7 +329,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     addButton: {
-        
+
         backgroundColor: '#6C5CE7',
         width: 60,
         height: 60,
@@ -315,4 +345,23 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 1,
     },
+    swipeActionContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 80,  // Controls how much space is revealed after swipe
+        backgroundColor: 'red',
+        borderRadius: 12,
+        marginVertical: 5,
+    },
+    deleteBox: {
+        width: 80,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'red',
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+    },
+
+    
 });

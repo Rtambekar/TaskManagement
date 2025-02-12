@@ -28,7 +28,7 @@ export default function TaskDetails() {
   const route = useRoute();
   const task = route.params?.task || {}; // Get task data (if passed)
 
-  const [prevTask, setPrevTask] = useState(null); 
+  const [prevTask, setPrevTask] = useState(null);
 
   useEffect(() => {
     if (task && task.id !== prevTask?.id) {
@@ -39,7 +39,7 @@ export default function TaskDetails() {
       setPriority(task.priority || "Medium");
       setDueDate(task.dueDate ? new Date(task.dueDate) : new Date());
       setIsCompleted(task.isCompleted || false);
-    } 
+    }
   }, [task]); // Dependency on task only
 
 
@@ -71,7 +71,7 @@ export default function TaskDetails() {
         // Pass task.id as the first argument and updatedTask as the second
         await updateTask(task.id, updatedTask);
         Alert.alert("Success", "Task updated successfully!");
-        navigation.navigate('TaskScreen'); 
+        navigation.navigate('TaskScreen');
       } catch (error) {
         console.error("Error updating task:", error);
         Alert.alert("Error", "Failed to update task.");
@@ -96,12 +96,12 @@ export default function TaskDetails() {
       try {
         const taskId = await createTask(newTask);
         Alert.alert("Success", "Task added successfully!");
-        navigation.navigate('TaskScreen'); 
+        navigation.navigate('TaskScreen');
       } catch (error) {
         console.error("Error creating task:", error);
         Alert.alert("Error", "Failed to add task.");
       }
-    
+
       // Reset form fields after adding a new task
       setTitle('');
       setDescription('');
@@ -126,9 +126,9 @@ export default function TaskDetails() {
           onChangeText={setTitle}
         />
         <TouchableOpacity onPress={handleAddOrUpdateTask}>
-        
-          <Righticon style ={styles.submit}/>
-  
+
+          <Righticon style={styles.submit} />
+
         </TouchableOpacity>
       </View>
 
