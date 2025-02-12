@@ -9,6 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
+import Righticon from '../assets/svg/Righticon';
 
 
 export default function TaskDetails() {
@@ -125,7 +126,9 @@ export default function TaskDetails() {
           onChangeText={setTitle}
         />
         <TouchableOpacity onPress={handleAddOrUpdateTask}>
-          <Text style={styles.submit}>{task?.id ? "Update" : "Add"}</Text>
+        
+          <Righticon style ={styles.submit}/>
+  
         </TouchableOpacity>
       </View>
 
@@ -232,8 +235,8 @@ const styles = StyleSheet.create({
   submit: {
     marginTop: 100,
     padding: 10,
-    backgroundColor: '#6A89CC',
-    borderRadius: 20,
+    backgroundColor: '#F9DDA4',
+    borderRadius: 30,
     color: 'white',
     fontSize: 16
   },

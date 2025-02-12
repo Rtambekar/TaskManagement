@@ -1,10 +1,18 @@
 import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { createTask, getTasks, deleteTask, updateTask } from '../services/taskService';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Menuicon from '../assets/menuicon';
+import Searchicon from '../assets/svg/Searchicon';
+import LineH from '../assets/svg/LineH';
+import Listicon from '../assets/svg/Listicon';
+import Addicon from '../assets/svg/Addicon';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
+import Calendericon from '../assets/svg/Calendericon';
+import Righticon from '../assets/svg/Righticon';
+import Checkbox from '../assets/svg/Checkbox';
+
 
 export default function TaskScreen() {
     const [title, setTitle] = useState('');
@@ -49,8 +57,8 @@ const handleDeleteTask = async (taskId) => {
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <TouchableOpacity>
-                        <Ionicons name="grid" size={24} color="#fff" />
+                    <TouchableOpacity>                      
+                        <Menuicon/>
                     </TouchableOpacity>
                     <View style={styles.searchContainer}>
                         <TextInput
@@ -63,10 +71,11 @@ const handleDeleteTask = async (taskId) => {
                                 setSearchText(txt);
                             }}
                         />
-                        <Ionicons name="search" size={20} color="#fff" style={styles.searchIcon} />
+                        <Searchicon/>
                     </View>
                     <TouchableOpacity>
-                        <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+                       <LineH   />
+                    
                     </TouchableOpacity>
                 </View>
                 <View style={styles.headerBottom}>
@@ -92,7 +101,7 @@ const handleDeleteTask = async (taskId) => {
                                     style={styles.taskCheckbox}
                                     onPress={() => toggleTaskCompletion(item.id, item.isCompleted)}>
                                     <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
-                                        {item.isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
+                                        {item.isCompleted && <Checkbox size={10} color="#fff" />}
                                     </View>
                                 </TouchableOpacity>
                                 <View style={styles.taskContent}>
@@ -137,13 +146,13 @@ const handleDeleteTask = async (taskId) => {
             {/* Bottom Navigation */}
             <View style={styles.bottomNav}>
                 <TouchableOpacity style={styles.bottomNavButton}>
-                    <Ionicons name="list" size={24} color="#6C5CE7" />
+                    <Listicon/>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TaskDetails')}>
-                    <Ionicons name="add" size={32} color="#fff" />
+                   <Addicon/>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.bottomNavButton} onPress={() => navigation.navigate('DateTimeScreen')}>
-                    <Ionicons name="calendar" size={24} color="#6C5CE7" />
+                <Calendericon/>
                 </TouchableOpacity>
             </View>
         </View>
@@ -154,7 +163,7 @@ const handleDeleteTask = async (taskId) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8F9FD',
+        backgroundColor: '#FAF9F6',
     },
     header: {
         backgroundColor: '#6C5CE7',
@@ -290,10 +299,11 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     addButton: {
+        
         backgroundColor: '#6C5CE7',
         width: 60,
         height: 60,
-        borderRadius: 30,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#6C5CE7',
@@ -303,6 +313,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.3,
         shadowRadius: 5,
-        elevation: 6,
+        elevation: 1,
     },
 });
