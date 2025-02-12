@@ -12,17 +12,25 @@ export default function TaskScreen() {
     const [tasks, setTasks] = useState([]);
     const navigation = useNavigation();
     const [searchText, setSearchText] = useState("");
-
+    const [olddata , setolddata] = useState("");
     useEffect(() => {
         fetchTasks();
     }, []);
 
     const fetchTasks = async () => {
         const fetchedTasks = await getTasks();
-        setTasks(fetchedTasks);  // Update the state to reflect fetched tasks
+        setTasks(fetchedTasks);
+        setolddata(fetchedTasks) ; // Update the state to reflect fetched tasks
     };
 //..................................................................................................// handles fetching  data
-    const handleDeleteTask = async (taskId) => {
+const onSearch = (text) => {
+    let tempList = olddata.filter(item => 
+        item.title.toLowerCase().includes(text.toLowerCase())
+    );
+    setTasks(tempList);
+};
+
+const handleDeleteTask = async (taskId) => {
         await deleteTask(taskId);
         fetchTasks();
     };
@@ -50,7 +58,10 @@ export default function TaskScreen() {
                             placeholder="Search tasks..."
                             placeholderTextColor="rgba(255,255,255,0.7)"
                             value={searchText}
-                            onChangeText={setSearchText}
+                            onChangeText={txt =>{
+                                onSearch(txt);
+                                setSearchText(txt);
+                            }}
                         />
                         <Ionicons name="search" size={20} color="#fff" style={styles.searchIcon} />
                     </View>
@@ -138,6 +149,7 @@ export default function TaskScreen() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
