@@ -41,7 +41,8 @@ export default function EmailPassauth() {
             setEmail("");
             setPassword("");
             console.log("successful login");
-            navigation.replace('TaskScreen'); // Navigate to Home screen after successful login
+            navigation.replace('TaskDrawer'); // This takes them to TaskScreen via drawer
+            // Navigate to Home screen after successful login
         } catch (error) {
             Alert.alert("Login Failed", error.message);
         }

@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 
 import { createTask, getTasks } from '../services/taskService';
 import { updateTask } from '../services/taskService';
-
+import TaskScreen from './TaskScreen';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -71,7 +71,9 @@ export default function TaskDetails() {
         // Pass task.id as the first argument and updatedTask as the second
         await updateTask(task.id, updatedTask);
         Alert.alert("Success", "Task updated successfully!");
-        navigation.navigate('TaskScreen');
+        navigation.navigate("TaskDrawer");
+
+        
       } catch (error) {
         console.error("Error updating task:", error);
         Alert.alert("Error", "Failed to update task.");
@@ -96,7 +98,7 @@ export default function TaskDetails() {
       try {
         const taskId = await createTask(newTask);
         Alert.alert("Success", "Task added successfully!");
-        navigation.navigate('TaskScreen');
+      navigation.navigate("TaskDrawer");
       } catch (error) {
         console.error("Error creating task:", error);
         Alert.alert("Error", "Failed to add task.");
